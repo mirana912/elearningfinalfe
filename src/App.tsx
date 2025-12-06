@@ -1,24 +1,35 @@
 // src/App.tsx
-import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
-import { getCurrentUserAsync } from './store/slices/authSlice';
-import { type AppDispatch } from './store/store/store';
-import AppRoutes from './routes/AppRoutes';
+// ==========================================
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { setUserFromStorage } from "./store/slices/authSlice";
+import AppRoutes from "./routes/AppRoutes";
 
 function App() {
-  const dispatch = useDispatch<AppDispatch>();
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    // Check if user is logged in on app load
-    const token = localStorage.getItem('token');
-    if (token) {
-      dispatch(getCurrentUserAsync());
+    console.log("App mounted");
+
+    const userInfo = localStorage.getItem("userInfo");
+    const accessToken = localStorage.getItem("accessToken");
+
+    console.log("Auth check:", {
+      hasToken: !!accessToken,
+      hasUser: !!userInfo,
+    });
+
+    if (userInfo && accessToken) {
+      dispatch(setUserFromStorage());
+      console.log("✅ User loaded from storage");
     }
   }, [dispatch]);
 
-  return <AppRoutes />;
+  return (
+    <div className="App">
+      <AppRoutes />
+    </div>
+  );
 }
 
 export default App;
-
-// ==========================================

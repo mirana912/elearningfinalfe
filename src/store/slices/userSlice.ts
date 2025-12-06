@@ -1,6 +1,10 @@
 // src/store/slices/userSlice.ts
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { userApi, type User, type UserListParams } from './../../services/api/userApi';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import {
+  userApi,
+  type User,
+  type UserListParams,
+} from "./../../services/api/userApi";
 
 interface UserState {
   users: User[];
@@ -19,55 +23,66 @@ const initialState: UserState = {
 };
 
 export const getUsersAsync = createAsyncThunk(
-  'user/getUsers',
+  "user/getUsers",
   async (params: UserListParams, { rejectWithValue }) => {
     try {
       const response = await userApi.getUsers(params);
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to fetch users');
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch users"
+      );
     }
   }
 );
 
 export const createUserAsync = createAsyncThunk(
-  'user/createUser',
+  "user/createUser",
   async (userData: Partial<User>, { rejectWithValue }) => {
     try {
       const response = await userApi.createUser(userData);
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to create user');
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to create user"
+      );
     }
   }
 );
 
 export const updateUserAsync = createAsyncThunk(
-  'user/updateUser',
-  async ({ id, data }: { id: string; data: Partial<User> }, { rejectWithValue }) => {
+  "user/updateUser",
+  async (
+    { id, data }: { id: string; data: Partial<User> },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await userApi.updateUser(id, data);
+      const response = await userApi.updateUser(id, userData);
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to update user');
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to update user"
+      );
     }
   }
 );
 
 export const deleteUserAsync = createAsyncThunk(
-  'user/deleteUser',
+  "user/deleteUser",
   async (id: string, { rejectWithValue }) => {
     try {
       await userApi.deleteUser(id);
       return id;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to delete user');
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to delete user"
+      );
     }
   }
 );
 
 const userSlice = createSlice({
-  name: 'user',
+  name: "user",
   initialState,
   reducers: {
     clearError: (state) => {
@@ -92,27 +107,24 @@ const userSlice = createSlice({
       });
 
     // Create user
-    builder
-      .addCase(createUserAsync.fulfilled, (state, action) => {
-        state.users.unshift(action.payload);
-        state.total += 1;
-      });
+    builder.addCase(createUserAsync.fulfilled, (state, action) => {
+      state.users.unshift(action.payload);
+      state.total += 1;
+    });
 
     // Update user
-    builder
-      .addCase(updateUserAsync.fulfilled, (state, action) => {
-        const index = state.users.findIndex(u => u.id === action.payload.id);
-        if (index !== -1) {
-          state.users[index] = action.payload;
-        }
-      });
+    builder.addCase(updateUserAsync.fulfilled, (state, action) => {
+      const index = state.users.findIndex((u) => u.id === action.payload.id);
+      if (index !== -1) {
+        state.users[index] = action.payload;
+      }
+    });
 
     // Delete user
-    builder
-      .addCase(deleteUserAsync.fulfilled, (state, action) => {
-        state.users = state.users.filter(u => u.id !== action.payload);
-        state.total -= 1;
-      });
+    builder.addCase(deleteUserAsync.fulfilled, (state, action) => {
+      state.users = state.users.filter((u) => u.id !== action.payload);
+      state.total -= 1;
+    });
   },
 });
 

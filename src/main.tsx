@@ -1,17 +1,24 @@
 // src/main.tsx
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { Provider } from 'react-redux';
-import { store } from './store/store';
-import App from './App';
-import './index.css';
+// ==========================================
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
+import ReactDOM from "react-dom/client";
+import { BrowserRouter, RouterProvider } from "react-router-dom";
+
+import { Provider } from "react-redux";
+import { store } from "./store/store/store";
+import App from "./App";
+import "./index.css";
+
+console.log("Application starting...");
+
+ReactDOM.createRoot(document.getElementById("root")!).render(
+  <RouterProvider>
     <Provider store={store}>
-      <App />
+      <BrowserRouter>
+        <App />
+      </BrowserRouter>
     </Provider>
-  </React.StrictMode>
+  </RouterProvider>
 );
 
 // ==========================================

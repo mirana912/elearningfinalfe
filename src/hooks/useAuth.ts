@@ -1,9 +1,17 @@
 // src/hooks/useAuth.ts
-import { useSelector, useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { type RootState, type AppDispatch } from './../store/store/store';
-import { loginAsync, registerAsync, logout } from '../store/slices/authSlice';
-import { type LoginRequest, type RegisterRequest } from '../services/api/authApi';
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { type RootState, type AppDispatch } from "./../store/store/store";
+import {
+  loginAsync,
+  registerAsync,
+  logout,
+  clearError,
+} from "../store/slices/authSlice";
+import {
+  type LoginRequest,
+  type RegisterRequest,
+} from "../services/api/authApi";
 
 export const useAuth = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -13,27 +21,46 @@ export const useAuth = () => {
   );
 
   const login = async (credentials: LoginRequest) => {
-    const result = await dispatch(loginAsync(credentials));
-    if (loginAsync.fulfilled.match(result)) {
-      const user = result.payload.user;
-      if (user.role === 'admin') {
-        navigate('/admin/users');
+    try {
+      const result = await dispatch(loginAsync(credentials));
+      if (loginAsync.fulfilled.match(result)) {
+        const userData = result.payload;
+        // GV (Giảng viên) hoặc Admin
+        if (userData.maLoaiNguoiDung === "GV") {
+          navigate("/admin/users");
+        } else {
+          navigate("/");
+        }
+        return { success: true };
       } else {
-        navigate('/');
+        return { success: false, error: result.payload as string };
       }
+    } catch (err: any) {
+      return { success: false, error: err.message };
     }
   };
 
   const register = async (userData: RegisterRequest) => {
-    const result = await dispatch(registerAsync(userData));
-    if (registerAsync.fulfilled.match(result)) {
-      navigate('/');
+    try {
+      const result = await dispatch(registerAsync(userData));
+      if (registerAsync.fulfilled.match(result)) {
+        navigate("/");
+        return { success: true };
+      } else {
+        return { success: false, error: result.payload as string };
+      }
+    } catch (err: any) {
+      return { success: false, error: err.message };
     }
   };
 
   const logoutUser = () => {
     dispatch(logout());
-    navigate('/login');
+    navigate("/login");
+  };
+
+  const clearAuthError = () => {
+    dispatch(clearError());
   };
 
   return {
@@ -44,6 +71,7 @@ export const useAuth = () => {
     login,
     register,
     logout: logoutUser,
+    clearError: clearAuthError,
   };
 };
 
